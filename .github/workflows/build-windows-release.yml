@@ -1,0 +1,38 @@
+name: Build Windows Release (No Unity License)
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish standalone EXE
+        run: dotnet publish StandaloneRunner/StandaloneRunner.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o Build/Windows
+
+      - name: Create ZIP package
+        shell: pwsh
+        run: Compress-Archive -Path Build/Windows/* -DestinationPath Build/Releases/TopDownRunner-Windows.zip -Force
+
+      - name: Upload build ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TopDownRunner-Windows
+          path: Build/Releases/TopDownRunner-Windows.zip
+
+      - name: Upload ZIP to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Build/Releases/TopDownRunner-Windows.zip
