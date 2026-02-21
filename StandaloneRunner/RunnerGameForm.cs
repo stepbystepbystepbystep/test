@@ -9,7 +9,7 @@ namespace StandaloneRunner;
 
 public class RunnerGameForm : Form
 {
-    private readonly Timer timer = new() { Interval = 16 };
+    private readonly System.Windows.Forms.Timer timer = new() { Interval = 16 };
     private readonly Random random = new();
 
     private readonly List<Obstacle> obstacles = new();

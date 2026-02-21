@@ -71,3 +71,8 @@ dotnet publish StandaloneRunner/StandaloneRunner.csproj -c Release -r win-x64 --
 ```
 
 После этого EXE будет в `Build/Windows/TopDownRunner.exe`.
+
+## Если при publish ошибка про Timer (CS0104)
+
+Эта ошибка уже исправлена в текущей версии: используется явный `System.Windows.Forms.Timer`.
+Если у тебя старый клон — обнови репозиторий (`git pull`) и запусти publish снова.
