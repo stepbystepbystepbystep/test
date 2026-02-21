@@ -13,7 +13,17 @@
 - `GameManager` — счет, проигрыш, рестарт (`R`), контроль преследователя.
 - `LaneObjectSpawner` — генерация препятствий и ранцев по линиям + очистка объектов позади игрока.
 - `TopDownCameraFollow` — камера сверху, следящая за игроком.
-- `WindowsBuild` — сборка игры в `.exe` (Windows x64).
+- `WindowsBuild` — сборка игры в `.exe` + упаковка в `zip`.
+- GitHub Actions workflow — автосборка ZIP для релизов.
+
+## Я хочу просто скачать ZIP с GitHub и запустить игру
+
+Да, можно. Целевой поток такой:
+1. Ты публикуешь **Release** в GitHub (например, тег `v1.0.0`).
+2. GitHub Action собирает Windows билд и прикрепляет `TopDownRunner-Windows.zip` к релизу.
+3. Любой пользователь скачивает ZIP из **Releases**, распаковывает и запускает `TopDownRunner.exe`.
+
+После распаковки не нужен Unity Editor — только Windows.
 
 ## Быстрый запуск в Unity
 
@@ -45,14 +55,16 @@
 - `→ / D` — смена полосы вправо,
 - `R` — перезапуск после проигрыша.
 
-## Как собрать EXE
+## Как собрать EXE и ZIP локально
 
 ### Вариант 1: через Unity Editor
 
 1. Открой проект.
 2. Добавь сцену в `File -> Build Settings` (должна быть включена галочка).
 3. Запусти `Build -> Build Windows EXE`.
-4. Готовый файл будет в `Build/Windows/TopDownRunner.exe`.
+4. Получишь:
+   - `Build/Windows/TopDownRunner.exe` (и связанные файлы),
+   - `Build/Releases/TopDownRunner-Windows.zip` (готов для раздачи).
 
 ### Вариант 2: через командную строку (CI / автоматизация)
 
@@ -62,7 +74,21 @@
   -executeMethod WindowsBuild.BuildFromCommandLine
 ```
 
-После успешной сборки EXE появится в `Build/Windows/TopDownRunner.exe`.
+## Как включить автосборку ZIP на GitHub
+
+В репозитории уже есть workflow: `.github/workflows/build-windows-release.yml`.
+
+Нужно добавить GitHub Secrets:
+- `UNITY_LICENSE`
+- `UNITY_EMAIL`
+- `UNITY_PASSWORD`
+
+Дальше:
+1. Запушь тег `v1.0.0` (или любой `v*`).
+2. Запустится workflow `Build Windows Release`.
+3. ZIP будет:
+   - в `Actions` как artifact,
+   - в `Releases` как файл релиза (для тегов `v*`).
 
 ## Как выгрузить на GitHub
 
