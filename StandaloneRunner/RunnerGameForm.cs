@@ -34,6 +34,8 @@ public class RunnerGameForm : Form
     private Image? obstacleImage;
     private Image? jetpackImage;
 
+    private readonly AudioController audioController;
+
     public RunnerGameForm()
     {
         DoubleBuffered = true;
@@ -43,13 +45,17 @@ public class RunnerGameForm : Form
         KeyPreview = true;
         BackColor = Color.FromArgb(25, 25, 30);
 
+        audioController = new AudioController(AppDomain.CurrentDomain.BaseDirectory);
+
         ResetSpawnState();
         LoadImages();
+        audioController.StartBackgroundLoop();
 
         timer.Tick += (_, _) => TickGame();
         timer.Start();
 
         KeyDown += OnKeyDown;
+        FormClosed += (_, _) => audioController.Dispose();
     }
 
     private void LoadImages()
@@ -106,6 +112,10 @@ public class RunnerGameForm : Form
         if (jetpackFrames > 0)
         {
             jetpackFrames--;
+            if (jetpackFrames == 0)
+            {
+                audioController.StopJetpackLoop();
+            }
         }
 
         SpawnContent();
@@ -188,6 +198,7 @@ public class RunnerGameForm : Form
         {
             jetpackFrames = 260;
             chaserY += 170;
+            audioController.StartJetpackLoop();
             jetpacks.Remove(jetpack);
         }
     }
@@ -348,6 +359,9 @@ public class RunnerGameForm : Form
         laneIndex = 1;
         jetpackFrames = 0;
         gameOver = false;
+
+        audioController.StopJetpackLoop();
+        audioController.StartBackgroundLoop();
 
         ResetSpawnState();
     }
