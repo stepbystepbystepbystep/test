@@ -1,108 +1,73 @@
-# 2D Top-Down Runner (Subway Surfers style)
+# TopDownRunner (скачал ZIP с GitHub и запустил EXE)
 
-Готовый набор C#-скриптов для Unity под мобильный/ПК раннер:
-- 3 полосы движения (влево/центр/вправо),
-- автоматический бег вперед,
-- преследователь сзади,
-- препятствия,
-- ранец (джетпак), который дает временный полет/неуязвимость к препятствиям.
+Теперь проект содержит **standalone C# WinForms-игру** (без Unity лицензии), чтобы ты мог:
+1. Запушить код в GitHub,
+2. Создать тег/релиз,
+3. Скачать ZIP из Releases,
+4. Запустить `TopDownRunner.exe`.
 
-## Что уже реализовано
+## Где игра
 
-- `PlayerRunner` — движение по трем линиям, ускорение, подбор ранца.
-- `GameManager` — счет, проигрыш, рестарт (`R`), контроль преследователя.
-- `LaneObjectSpawner` — генерация препятствий и ранцев по линиям + очистка объектов позади игрока.
-- `TopDownCameraFollow` — камера сверху, следящая за игроком.
-- `WindowsBuild` — сборка игры в `.exe` + упаковка в `zip`.
-- GitHub Actions workflow — автосборка ZIP для релизов.
-
-## Я хочу просто скачать ZIP с GitHub и запустить игру
-
-Да, можно. Целевой поток такой:
-1. Ты публикуешь **Release** в GitHub (например, тег `v1.0.0`).
-2. GitHub Action собирает Windows билд и прикрепляет `TopDownRunner-Windows.zip` к релизу.
-3. Любой пользователь скачивает ZIP из **Releases**, распаковывает и запускает `TopDownRunner.exe`.
-
-После распаковки не нужен Unity Editor — только Windows.
-
-## Быстрый запуск в Unity
-
-1. Создай **2D Core** проект в Unity.
-2. Скопируй папку `Assets/Scripts` и `Assets/Editor` в проект.
-3. На сцене создай объекты:
-   - `GameManager` (повесь `GameManager.cs`),
-   - `Player` (Sprite + Rigidbody2D + Collider2D + `PlayerRunner.cs`),
-   - `Chaser` (Sprite + Collider2D по желанию),
-   - `Spawner` (`LaneObjectSpawner.cs`),
-   - `Main Camera` (`TopDownCameraFollow.cs`).
-4. В `GameManager` привяжи:
-   - `Player`,
-   - `Chaser`,
-   - `ScoreText` (TMP_Text, опционально),
-   - `GameOverPanel` (UI панель, опционально).
-5. В `LaneObjectSpawner` привяжи:
-   - `Player`,
-   - массив `Obstacle Prefabs` (теги можно не ставить вручную, скрипт ставит `Obstacle`),
-   - `Jetpack Prefab` (скрипт ставит `Jetpack`).
-6. Вставь свои PNG:
-   - спрайт бегущего персонажа на `Player`,
-   - спрайт преследователя на `Chaser`,
-   - спрайты препятствий и ранца в соответствующие префабы.
+- Проект: `StandaloneRunner/StandaloneRunner.csproj`
+- Главная логика: `StandaloneRunner/RunnerGameForm.cs`
+- Workflow сборки: `.github/workflows/build-windows-release.yml`
 
 ## Управление
 
-- `← / A` — смена полосы влево,
-- `→ / D` — смена полосы вправо,
-- `R` — перезапуск после проигрыша.
+- `← / A` — влево по линии
+- `→ / D` — вправо по линии
+- `R` — рестарт после проигрыша
 
-## Как собрать EXE и ZIP локально
+## Свои PNG
 
-### Вариант 1: через Unity Editor
+Если хочешь подставить свои картинки:
+- положи `runner.png` и `chaser.png` рядом с `TopDownRunner.exe`
+- если файлов нет — используются встроенные простые фигуры.
 
-1. Открой проект.
-2. Добавь сцену в `File -> Build Settings` (должна быть включена галочка).
-3. Запусти `Build -> Build Windows EXE`.
-4. Получишь:
-   - `Build/Windows/TopDownRunner.exe` (и связанные файлы),
-   - `Build/Releases/TopDownRunner-Windows.zip` (готов для раздачи).
+---
 
-### Вариант 2: через командную строку (CI / автоматизация)
+## Пошагово: как получить ZIP на GitHub и запускать EXE
 
-```bash
-"C:/Program Files/Unity/Hub/Editor/<UNITY_VERSION>/Editor/Unity.exe" \
-  -quit -batchmode -projectPath "<PATH_TO_PROJECT>" \
-  -executeMethod WindowsBuild.BuildFromCommandLine
-```
-
-## Как включить автосборку ZIP на GitHub
-
-В репозитории уже есть workflow: `.github/workflows/build-windows-release.yml`.
-
-Нужно добавить GitHub Secrets:
-- `UNITY_LICENSE`
-- `UNITY_EMAIL`
-- `UNITY_PASSWORD`
-
-Дальше:
-1. Запушь тег `v1.0.0` (или любой `v*`).
-2. Запустится workflow `Build Windows Release`.
-3. ZIP будет:
-   - в `Actions` как artifact,
-   - в `Releases` как файл релиза (для тегов `v*`).
-
-## Как выгрузить на GitHub
+### 1) Создай репозиторий и запушь проект
 
 ```bash
 git init
 git add .
-git commit -m "Initial Unity top-down runner"
+git commit -m "TopDownRunner standalone build"
 git branch -M main
 git remote add origin https://github.com/<your_user>/<your_repo>.git
 git push -u origin main
 ```
 
-## Важные детали
+### 2) Создай тег версии
 
-- Для столкновений у префабов препятствий/ранца должны быть `Collider2D` с `Is Trigger = true`.
-- У игрока должен быть `Rigidbody2D` (скрипт сам отключает гравитацию).
-- Если хочешь эффект "полета выше", можно в `ActivateJetpack()` добавить анимацию масштаба/сортировки слоя.
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+### 3) Дождись завершения GitHub Action
+
+Открой `Actions` → `Build Windows Release (No Unity License)`.
+
+Workflow автоматически:
+- собирает Windows EXE через `dotnet publish`,
+- запаковывает в `TopDownRunner-Windows.zip`,
+- прикладывает ZIP в Releases для тега `v*`.
+
+### 4) Скачай и запусти
+
+- Открой вкладку **Releases** в GitHub.
+- Скачай `TopDownRunner-Windows.zip`.
+- Распакуй архив.
+- Запусти `TopDownRunner.exe`.
+
+Готово — Unity, `UNITY_LICENSE`, `UNITY_EMAIL`, `UNITY_PASSWORD` больше **не нужны**.
+
+## Локальный запуск без GitHub
+
+```bash
+dotnet publish StandaloneRunner/StandaloneRunner.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o Build/Windows
+```
+
+После этого EXE будет в `Build/Windows/TopDownRunner.exe`.
